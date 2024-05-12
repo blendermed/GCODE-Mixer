@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en-en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>GCODE-Mixer [beta]</title>
+
+    <script language="JavaScript"></script>
+
+    <style type="text/css">
+        
+		:root {
+		--c1:#b50;
+		--c2:#d90;
+		}
+
+
+		
+		*{
+		font-family:  'Noto Sans', 'Arial', sunserif;
+		}
+		
+		body {
+            
+            font-weight: 300;
+            font-size: 14px;
+            text-align: center;
+        }
+		
+
+
+        input[type=file] {
+            background: #f5f5f5;
+			height: 22px;
+            width: 300px;
+            padding: 0px 0;
+            margin: 5px 0;
+            border-radius: 4px;
+
+        }
+		
+		::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+			opacity: 1; /* Firefox */
+			color: #ccc;
+			}
+
+		:-ms-input-placeholder { /* Internet Explorer 10-11 */
+			color: #ccc;
+			}
+
+		::-ms-input-placeholder { /* Microsoft Edge */
+			color: #ccc;
+			}
+
+
+        input[type=number] {
+			height: 20px;
+            background: #fafafa;
+            width: 40px;
+            border-radius: 4px;
+        }
+
+        button {
+            cursor: pointer;
+			background-color: var(--c1);
+        }
+		
+		button {
+			cursor: pointer;
+        }
+
+		button:disabled{
+			background-color: #ccc;
+			cursor: not-allowed;
+		}
+		
+		button.wait:disabled{
+		cursor:wait;
+		}
+		
+		button:disabled:hover{
+			background-color: #ccc;
+		}
+		
+		
+		button:hover{
+			background-color: var(--c2);
+		}
+
+
+		#add_file
+		{
+		width: 600px;
+		height: 30px;
+		border: none;
+		border-radius: 4px;
+		background-color: #eee;
+		}
+		
+		#add_file:active
+		{
+		background-color: var(--c1);
+		color: #fff;
+		}
+		
+		#add_file:hover
+		{
+		background-color: #f5f5f5;
+		color: var(--c1);
+		border: solid 1px #ddd;
+		}
+		
+		
+		#marge_button
+		{
+		    height: 50px;
+            width: 240px;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 35px;
+            border: none;
+            border-radius: 4px;
+
+            font-weight: 400;
+			font-size: 18px;
+		}
+		
+
+		
+		.clear_button
+		{
+			height: 22px;
+            width: 22px;
+            background-color: var(--c1);
+            color: white;
+            padding: 0px 0px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+			margin: 0px 24px;
+		}
+
+        #file_inputs li {
+            list-style-type: decimal-leading-zero;
+			opacity: 1;
+			padding:3px 0px;
+			background: #eee;
+			margin: 5px 0px;
+        }
+
+        #file_inputs li.hint {
+            
+            _margin: 10px 0;
+        }
+
+		#file_inputs li.targeted {
+		background: #C3E1ED;
+		opacity: 0.5;
+		}
+
+        #file_inputs li.active {
+            background: #f5f5f5;
+			 border-bottom: 5px solid var(--c1);
+			 margin: 5px 0 -5px 0;
+        }
+		
+	
+		
+
+        #file_inputs li.active .file-input,
+        #file_inputs li.active .repeats {
+            pointer-events: none;
+			
+        }
+		
+		
+		input[type="number"].repeats {
+		width:50px;
+		margin: 0px 10px;
+		}
+		
+		ol
+		{width:600px;
+		display: inline-block;
+		margin:0;
+		padding: 0 40px;
+		}
+		
+		.file_size
+		{display:inline-block;
+		width:80px;
+		padding:0;
+		margin:0;
+		margin: 0px 10px;
+		}
+		
+		
+		#total_size_label {
+			font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+			padding: 10px 10px;
+			position: relative;
+			top:-30px; 
+			min-width: 100px;
+			color: #aaa;
+		}
+		
+		#total_size_container
+		{
+		_margin: 30px 40px;
+		background-color: #eee;
+		margin: 30px auto;
+		display: block;
+		height: 5px;
+		width: 600px;
+		border: 1px solid #ccc;
+		}
+		
+		#total_size_scale
+		{height:100%;
+		 background-color: var(--c1);
+		 width:0%;
+		}
+		
+		#total_size_scale.critical {
+		background-color: #fb0;}
+		
+		#total_size_scale.owerflow {
+		background-color: #f00;}
+		
+
+		#file_inputs_header p {
+		display: inline-block;
+		margin: 0px 10px;
+		color: #aaa;
+		}
+		
+		#file_inputs_header {
+		width: 600px; 
+		margin: auto;
+		display: block;
+		}
+		
+		#size_warning, #slicer_info, #legacy_info{
+		color: #f00;
+		font-weight:600;
+		width:580px;
+		margin:15px 0;
+		padding:10px;
+		border: 1px solid #f00;
+		}
+		
+		
+		#legacy_info{
+		color: #555;
+		border-color: #555;
+		font-weight:400;
+
+		}
+		
+		.is_hidden.make_visible
+		{display:block;}
+		
+		#size_warning.make_visible
+		{_display:initial;
+		}
+		
+		.is_hidden
+		{display:none;}
+		
+		#clearing_gcode
+		{width:600px;
+		height: 100px;}
+
+		.optional_gcode
+		{
+		width:600px;
+		height: 50px;}
+		
+		
+
+		
+    </style>
+
+
+
+
+</head>
+
+<body>
+<div style="_width:500px;">
+  
+	
+
+   <h1> GCODE-Mixer</h1>
+  <h3 style="color:#ff0000;"> beta v00-01 </h1> <br>
+	
+	<div id="file_inputs_header"> 
+		<p style="width:300px">File</p>
+		<p style="width:70px">Size</p>
+		<p style="width:60px">Repeats</p>
+		<p style="width:60px">Remove</p>
+	</div>
+    <ol id="file_inputs" >
+        <li>
+            <input class="file-input" name="file-input[]" type="file" accept=".gcode"> <p class="file_size"> </p>
+			
+            <input class="repeats" type="number" min="0" max="9999" step="1" width="300px" value="1">
+			<button class="clear_button">x</button>
+        </li>
+
+    </ol>
+	<br>
+	<button id="add_file" >+ Add file</button>
+
+<div id="total_size_container"> 
+	<div id="total_size_scale"> 
+		<div id="total_size_label"></div> 
+	</div>
+</div>
+
+
+	<div style="margin: 0 auto; width:600px; display: block;" id="info_box">
+		
+		
+		<p id="size_warning" class="is_hidden" >Error: Files larger than 450MB can not yet be generated. <br>Please use fewer files or decrease the repeats counts.</p>
+		
+	</div>
+	
+<br><br>
+<label for="clearing_gcode" Title="Following lines will be added after each GCODE file and its iterations.">Custom clearing gcode:</label><br>
+<textarea name="clearing_gcode" id="clearing_gcode"></textarea>
+<br><br>
+
+<details> <summary> Advanced settings (optional)... </summary>
+<br><br>
+<label for="prequel" Title="Following lines will be added at the very beginning of the generated GCODE file.">Prequel GCODE:</label><br>
+<textarea name="prequel" id="prequel" class="optional_gcode"></textarea>
+<br><br>
+<label for="exclude_lines_all" Title="Following code pieces will be turned into comment (which means deactivated) in each GCODE file and its iterations.">Deactivate folowing lines in ALL GCODEs:</label><br>
+<textarea name="exclude_lines_all" id="exclude_lines_all" class="optional_gcode"></textarea>
+<br><br>
+<label for="exclude_lines_not_first" Title="Following code pieces will be turned into commen (which means deactivated) in each GCODE file and its iterations, EXCEPT of very FIRST.">Deactivate folowing lines in ALL GCODEs but NOT in FIRST:</label><br>
+<textarea name="exclude_lines_not_first" id="exclude_lines_not_first" class="optional_gcode"></textarea>
+<br><br>
+<label for="exclude_lines_not_last" Title="Following code pieces will be turned into commen (which means deactivated) in each GCODE file and its iterations, EXCEPT of very LAST.">Deactivate folowing lines in ALL GCODEs but NOT in LAST:</label><br>
+<textarea name="exclude_lines_not_last" id="exclude_lines_not_last" class="optional_gcode"></textarea>
+<br><br>
+<label for="sequel" Title="Following lines will be added at the very end of the generated GCODE file." >Sequel GCODE:</label><br>
+<textarea name="sequel" id="sequel" class="optional_gcode"></textarea>
+<br><br>
+</details>
+<br><br>
+
+
+<form>
+
+
+
+  <label for="fname">Choose output file name (optional):</label><br>
+  <input type="text" id="fname" name="fname" placeholder="job_playlist" maxlength="64" size="32" onkeydown="return /[a-zA-Z0-9 _-]/i.test(event.key)" >
+</form>
+
+
+    <br><br><button id="marge_button" style="width:400px;">MERGE FILES</button>
+	
+	
+    <pre id="file-contents" style="display:none;"></pre>
+
+    <br>
+    <br>
+
+<br><br>
+   
+
+<br><br>
+    <details>
+        <summary>Learn how to use gcode-mixer app</summary>
+		 
+		<div
+            style="text-align:left; display: inline-block; width: 500px; border: solid 1px #888; padding:10px; color: #888;">
+<p>	
+		Please follow this <a href="#" target="_blank">link</a>.
+		</p>
+</div>
+</details>
+
+   
+<br><br>
+    <details>
+        <summary>Data security and privacy</summary>
+		
+		<div
+            style="text-align:left; display: inline-block; width: 500px; border: solid 1px #888; padding:10px; color: #888;">
+<p>	
+		We care about your data security and privacy and that’s why the gcode-mixer app is designed in a way, that your files never leave your computer and are processed locally (on your computer by a technique called JavaScript), even if the user interface runs in a browser.
+		</p>
+</div>
+
+    </details>
+</br>
+<br>
+ <details>
+        <summary>Use gcode-mixer app offline...</summary>
+		
+
+<div
+            style="text-align:left; display: inline-block; width: 500px; border: solid 1px #888; padding:10px; color: #888;">
+<p>			
+By the way, you don’t even need internet connection for using gcode-mixer app. You can save it locally and use offline.
+Learn how ...
+</p>
+<ul>
+<li> Navigate to gcode-mixer app / done ;) </li>
+<li> Right click somewhere on the white space to open a website menu</li>
+<li> Click on “Save as” or “Save page as”</li>
+<li> Select the place where the page should be saved,</li>
+<li> Make sure to select “HTML only” as a “File type” option and click “Save”.</li>
+<li> Now instead navigating to gcode-mixer app you can just double-click on this file and use the full functionality offline.</li>
+</ul>
+</div>
+
+    </details>
+
+
+</br>
+<br>
+
+    <details>
+        <summary> gcode-mixer app V00-01 [ See release-Notes... ]</summary>
+        <div
+            style="text-align:left; display: inline-block; width: 500px; border: solid 1px #888; padding:10px; color: #888;">
+			
+			<p> <b>gcode-mixer app V00-01</b></p>
+            <ul>
+				<li>temporary version for beta test </li>
+
+            </ul>
+			
+        </div>
+    </details>
+	
+
+</div>
+
+    <script>
+
+
+let info;
+
+let clearing_gcode_txt;
+
+let prequel_txt;
+let sequel_txt;
+
+let exclude_lines_all_txt;
+let exclude_lines_not_first_txt;
+let exclude_lines_not_last_txt;	
+
+
+
+
+// run initialisation after the page was loaded
+window.addEventListener("DOMContentLoaded", () => {
+initialize_values();
+initialize_page();
+});
+
+function initialize_values()
+{
+
+info = ";generated by gcode-mixer.app \n ";
+
+clearing_gcode_txt = document.getElementById("clearing_gcode");
+prequel_txt = document.getElementById("prequel");
+exclude_lines_all_txt = document.getElementById("exclude_lines_all");
+exclude_lines_not_first_txt = document.getElementById("exclude_lines_not_first");
+exclude_lines_not_last_txt = document.getElementById("exclude_lines_not_last");
+sequel_txt = document.getElementById("sequel");
+
+}
+		
+function initialize_page()
+		{
+		const file_inputs = document.getElementById("file_inputs");
+		
+		
+		    // make the file-input list sortable
+            makeListSortable(file_inputs);
+			
+			// add eventListener(s) to all input lines
+			add_file_listner(file_inputs);
+		}
+	
+	
+				
+async function file_validation(my_target)
+		{ 
+		 const my_files=my_target.files;
+		 const my_repeats = my_target.parentElement.querySelector('.repeats');
+		 const my_file_size=my_target.parentElement.querySelector('.file_size');
+		
+            if (my_files[0]) {
+                // Read the file. This is the only method in this file which doesn't work in the Internet Explorer.
+				const   file_content = await my_files.item(0).text();
+				const   file_size= file_content.length;
+
+
+				 
+				
+			
+				const cum_size = file_size * my_repeats.value;
+			
+				my_repeats.file_size=file_size;
+				my_repeats.cum_size=cum_size;
+				my_file_size.innerHTML= Math.round(cum_size/10000)/100 + " MB";
+										
+				
+			}
+			else{
+				if (my_repeats){
+					my_repeats.file_size=0;
+					my_repeats.cum_size=0;
+				}
+				
+				if (my_file_size){
+					my_file_size.innerHTML= "--";
+				}
+				
+			}
+			size_monitoring();
+		}		
+		
+
+
+        /**
+        * Modifies a gcode file. It's main purpose is the removal of unwanted gcode commands.
+        */
+        function modify_gcode(_txt, _exclude) {
+		//mod_txt=_txt;
+            
+			let my_exclude_lines=_exclude.value.split("\n");
+			console.log("exclude_lines", my_exclude_lines);
+			
+			for(i in my_exclude_lines)
+			{ 
+			console.log("exclude_lines[i]", my_exclude_lines[i]);
+			_txt=_txt.split(my_exclude_lines[i]).join(";"+my_exclude_lines[i]); 
+			}
+			
+			 
+			//_txt+=clearing_gcode+"\n";
+			
+
+			return _txt;
+		
+        }
+
+
+
+        /**
+        * Triggers the download of a gcode file.
+        */
+        function download(filename, datafileurl) {
+		
+		   
+            var element = document.createElement('a');
+	    
+            element.setAttribute('href', datafileurl);
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+
+
+        /**
+        * Generates a datetime String.
+        */
+        function get_datetime() {
+            var currentdate = new Date();
+            var datetime = currentdate.getFullYear() + "-"
+                + (currentdate.getMonth() + 1) + "-"
+                + currentdate.getDate() + "-"
+                + currentdate.getHours() + "-"
+                + currentdate.getMinutes() + "-"
+                + currentdate.getSeconds();
+            return (datetime)
+        }
+
+		
+		function waitforit(n){
+			const my_button = document.getElementById("marge_button");
+			
+			if(n){
+			my_button.innerHTML = "Please wait...";
+			my_button.disabled=true;
+			my_button.classList.add("wait");
+			}
+			else{
+			my_button.innerHTML = "MERGE FILES";
+			my_button.disabled=false;
+			my_button.classList.remove("wait");
+			}
+			
+		
+		
+		}
+
+
+        /**
+        * Event listener that adds aditional line to the list if button is clicked.
+        */
+        document.querySelector("#add_file").addEventListener('click', function () {
+		
+		var file_inputs = document.querySelector("#file_inputs").getElementsByTagName("li");
+		
+		
+		
+		
+		if(file_inputs.length)
+			{
+			
+			var first_input=file_inputs[0].cloneNode(true);
+			file_inputs[file_inputs.length-1].after(first_input);
+			
+			resetFile(first_input.firstChild);
+			
+			initialize_page();
+			}
+		
+		
+		
+		
+		
+		});
+		
+
+
+        /**
+        * Event listener that generates the gcode file when the "generate"-button is clicked.
+        */
+        document.querySelector("#marge_button").addEventListener('click', async function () {
+            // initialize variables
+			
+			const clearing_gcode=clearing_gcode_txt.value;
+			
+			var myList = [];
+			
+			
+            myList.push(prequel_txt.value, '\n' );
+
+            // set a loading screen
+            waitforit(true);
+
+            // get upload fields
+            var file_inputs = document.querySelector("#file_inputs").getElementsByTagName("li");
+
+            // iterate through the upload fields
+            for (var i = 0, length = file_inputs.length; i < length; i++) {
+                repeats = file_inputs[i].querySelector('.repeats').value;
+                files = file_inputs[i].querySelector('.file-input').files;
+
+                if (files[0]) {
+                    // Read the file. This is the only method in this file which doesn't work in the Internet Explorer.
+                    file_content = await files.item(0).text();
+
+                    var my_gcode;
+					
+					if (exclude_lines_all_txt.value!=""){
+						 my_gcode = modify_gcode(file_content, exclude_lines_all_txt );}
+					else {
+						my_gcode=file_content;}
+					
+					
+					
+					// repeat the gcode based on the "repeats" text field
+					for ( j = 0; j<repeats ;j++){
+						
+						
+						
+						myList.push(';file_' , i+1, ' iteration_', j+1 , '\n' ); //.concat( (i + 1).toString()
+						
+						
+						
+						let mod_gcode=my_gcode;
+						
+						if( !(i==0 && j==0) && exclude_lines_not_first_txt.value!="")
+						{
+						console.log("i=" + i +" j=" + j);
+						console.log("exclude_lines_not_first_txt="+exclude_lines_not_first_txt.value);
+						mod_gcode=modify_gcode(mod_gcode, exclude_lines_not_first_txt );}
+		
+		
+		
+						if (!(i==length-1 && j==repeats-1) && exclude_lines_not_last_txt.value!="")
+						{
+						console.log("i=" + i +" j=" + j);
+						console.log("exclude_lines_not_last_txt" +exclude_lines_not_last_txt.value);
+						mod_gcode=modify_gcode(mod_gcode, exclude_lines_not_last_txt );}
+						
+
+						myList.push(mod_gcode);
+						
+						
+						
+						myList.push("\n"+clearing_gcode+"\n");
+						
+					}
+                        
+                }
+				
+				myList.push(sequel_txt.value, '\n' );
+            }
+			
+			
+
+        var file_name = document.getElementById("fname").value;
+			if(file_name=="")file_name=get_datetime() + "mix";
+
+            // start the download
+	    var datafile = new Blob(myList,{type : 'text/x-gcode'});
+            datafileurl = URL.createObjectURL(datafile)
+            download(file_name + ".gcode", datafileurl);
+
+            // set the generate-button text to the initial text
+			waitforit(false);
+            
+        });
+
+
+
+        /**
+        * A function that makes an li-list sortable.
+        * © W.S. Toh – MIT license
+        */
+        function makeListSortable(target) {
+            target.classList.add("slist");
+            let items = target.getElementsByTagName("li"), current = null;
+
+            for (let i of items) {
+                i.draggable = true;
+
+                i.ondragstart = (ev) => {
+                    current = i;
+					current.classList.add("targeted");
+                    for (let it of items) {
+                        if (it != current) { it.classList.add("hint"); }
+                    }
+                };
+
+                i.ondragenter = (ev) => {
+                    if (i != current) { i.classList.add("active"); }
+                };
+
+                i.ondragleave = () => {
+                    i.classList.remove("active");
+                };
+
+                i.ondragend = () => {
+                    for (let it of items) {
+                        it.classList.remove("hint");
+                        it.classList.remove("active");
+						it.classList.remove("targeted");
+                    }
+                };
+
+                i.ondragover = (evt) => { evt.preventDefault(); };
+
+                i.ondrop = (evt) => {
+                    evt.preventDefault();
+                    if (i != current) {
+                        let currentpos = 0, droppedpos = 0;
+                        for (let it = 0; it < items.length; it++) {
+                            if (current == items[it]) { currentpos = it; }
+                            if (i == items[it]) { droppedpos = it; }
+                        }
+						i.parentNode.insertBefore(current, i.nextSibling);
+						/*
+                        if (currentpos < droppedpos) {
+                            i.parentNode.insertBefore(current, i.nextSibling);
+                        } else {
+                            i.parentNode.insertBefore(current, i);
+                        }
+						*/
+                    }
+                };
+            }
+        }
+
+
+		
+		
+
+		
+		 /**
+        * Analyze gcode's size
+        */
+		
+		
+		
+		function recalculate_size(my_target)
+		{
+		
+		const repeats_field = my_target.parentElement.querySelector('.repeats');
+				
+		if (repeats_field.file_size)
+		{
+			const cum_size=repeats_field.value*repeats_field.file_size*1.015;
+		
+			repeats_field.cum_size=cum_size;
+			my_target.parentElement.querySelector('.file_size').innerHTML= Math.round(cum_size/10000)/100 + " MB";
+			
+			size_monitoring();
+		}
+		}
+		
+		
+		
+		
+		
+		
+		function size_monitoring()
+		{
+		var total_size=0;
+		const lable = document.getElementById("total_size_label");
+		const scala = document.getElementById("total_size_scale");
+
+		
+		
+		
+		document.getElementById("file_inputs").querySelectorAll('.repeats').forEach(item => {		
+			if(item.cum_size){
+				total_size+=item.cum_size;
+				
+			}
+		});
+			
+		if(total_size){
+			lable.innerHTML=Math.round(total_size/10000)/100 + " MB";
+			
+			
+			scala.style.width =Math.min(100,total_size/1000/1000000*100)+"%";
+			
+			if(total_size>1000000000){
+				scala.classList.add("critical");
+			}
+			else{
+				scala.classList.remove("critical");
+			}
+			
+			
+			if(total_size>1024000000){
+				scala.classList.add("owerflow");
+
+			}
+			else {
+				scala.classList.remove("owerflow");
+				
+
+			}
+			
+			
+		}
+		else {
+			lable.innerHTML="--";
+			scala.style.width =0+"%";
+		}
+		
+		
+		}
+		
+		
+		/**
+        * Clear file input and count input.
+        */
+		function resetFile(target) {
+		  const file = target.parentElement.querySelector("input[type=file]");
+		  const count = target.parentElement.querySelector(".repeats");	
+		  const size = target.parentElement.querySelector('.file_size');
+		  if (file) file.value = '';
+		  if (count) {
+		  count.value = 1;
+		  count.file_size=0;
+		  count.cum_size=0;
+		  }
+		  if (size) size.innerHTML = "";
+		size_monitoring();
+		}
+		
+		
+		
+		/**
+        * remove file input and count input.
+        */
+		function removeFile(target) {
+			const file = target.parentElement.querySelector("input[type=file]");
+			if (file)
+				{
+				const elements_remains = file.parentElement.parentElement ?  file.parentElement.parentElement.childElementCount : 0;
+				if(elements_remains>1)
+					{
+					file.parentElement.remove();
+					size_monitoring();
+					}
+				else
+					{
+					resetFile(file); //Clear file input if it's a last item.
+					}
+				}
+		}
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		 function add_file_listner(file_list){
+		file_list.querySelectorAll('input[type="file"]').forEach(item => 
+			{ 
+				item.addEventListener("change", (e) => {
+				
+				file_validation (e.target);						
+				});
+                
+				
+				
+				item.addEventListener("click", (e) => {
+				e.target.value = null;	
+				file_validation (e.target);
+				
+				});
+				
+				item.parentElement.querySelector('.repeats').addEventListener("change", (e) => {
+				
+				recalculate_size(e.target);						
+				});
+				
+				
+				item.parentElement.querySelector('.clear_button').addEventListener("click", (e) => {
+				removeFile(e.target);						
+				});
+				
+				
+				
+				
+			});
+		}
+		
+    </script>
+</div>
+</body>
+
+</html>
