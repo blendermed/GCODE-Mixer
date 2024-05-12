@@ -1,6 +1,13 @@
 # GCODE-Mixer
 Java script based tool which stiches multiple gcodes.
 
+
+[__Try it here__](https://htmlpreview.github.io/?https://github.com/blendermed/GCODE-Mixer/blob/main/index.html)
+
+
+___
+___
+
 There are some settings to customize stiching procedure:
 
 ## Repeats: 
@@ -33,3 +40,9 @@ Following code pieces will be turned into comment (means deactivated) in each GC
 
 ## Sequel GCODE:
 Following lines will be added at the very end of the generated GCODE file.
+
+## Choose output file name
+Allows to specify the name of the generated GCODE file.
+
+## MERGE FILES
+Will processe all input files and merge them into one GCODE file. If the file is to large it can take few seconds. You can monitor the estimated size on the scala above.
